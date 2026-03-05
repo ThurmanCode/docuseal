@@ -81,7 +81,7 @@
         />
         <template v-else>
           <form
-            v-if="withSignYourselfButton && template.submitters.length < 2"
+            v-if="withSignYourselfButton && undefinedSubmitters.length < 2"
             target="_blank"
             data-turbo="false"
             class="inline"
@@ -720,6 +720,11 @@ export default {
       required: false,
       default: false
     },
+    withPrefillable: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
     customFields: {
       type: Array,
       required: false,
@@ -938,12 +943,15 @@ export default {
     language () {
       return this.locale.split('-')[0].toLowerCase()
     },
-    withPrefillable () {
-      if (this.template.fields) {
-        return this.template.fields.some((f) => f.prefillable)
-      } else {
-        return false
-      }
+    undefinedSubmitters () {
+      return this.template.submitters.filter((submitter) => {
+        return !submitter.invite_by_uuid &&
+          !submitter.optional_invite_by_uuid &&
+          !submitter.invite_via_field_uuid &&
+          !submitter.linked_to_uuid &&
+          !submitter.is_requester &&
+          !submitter.email
+      })
     },
     isInlineSize () {
       return CSS.supports('container-type: size')
